@@ -92,6 +92,17 @@ body menu {
     -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
 }
+.wrap-menu {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    
+    /* background-color: rgba(0,0,0,.5); */
+}
 body .active-menu {
     -webkit-transition: 1s;
     transition: 1s;
