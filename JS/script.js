@@ -66,8 +66,8 @@ window.addEventListener('DOMContentLoaded', function(){
     }
     countTimer('29 february 2021');
     // setInterval(countTimer, 1000, '01 april 2021')
-//меню
-const toggleMenu = () => {
+    //меню
+    const toggleMenu = () => {
 
     const btnMenu = document.querySelector('.menu'),
         wrapMenu = document.querySelector('wrap'),
@@ -104,9 +104,9 @@ const toggleMenu = () => {
     };
     toggleMenu();
 
-//popup
+    //popup
 
-const togglePopUp = () => {
+    const togglePopUp = () => {
     const popup = document.querySelector('.popup'),
         popupBtn = document.querySelectorAll('.popup-btn');
         // popupClose = document.querySelector('.popup-close');
@@ -149,7 +149,7 @@ const togglePopUp = () => {
     };
     togglePopUp();
 
-//табы
+    //табы
 
     const tabs = () => {
     const tabHeader = document.querySelector('.service-header'),
@@ -205,9 +205,9 @@ const togglePopUp = () => {
     };
     tabs();
 
-//слайдер
+    //слайдер
 
-const slider = () => {
+    const slider = () => {
     const slide = document.querySelectorAll('.portfolio-item'),
         btn = document.querySelectorAll('.portfolio-btn'),
         // dot = document.querySelectorAll('.dot'),
@@ -256,20 +256,20 @@ const slider = () => {
     const stopSlide = () => {
         clearInterval(interval);
     };
-    startSlide(1000);
+    startSlide(4000);
     //кнопки next & prev
     slider.addEventListener('click', (event) => {
     event.preventDefault();
     let target = event.target;
 
-//ограничение входа по классам
-if(!target.matches('.portfolio-btn, .dot')){
-    return;
-}
+    //ограничение входа по классам
+    if(!target.matches('.portfolio-btn, .dot')){
+        return;
+    }
 
-    prevSlide(slide, currentSlide, 'portfolio-item-active');
-        prevSlide(dot, currentSlide, 'dot-active');
-//цель события
+        prevSlide(slide, currentSlide, 'portfolio-item-active');
+            prevSlide(dot, currentSlide, 'dot-active');
+    //цель события
     if(target.matches('#arrow-right')){
         currentSlide++;
     } else if(target.matches('#arrow-left')){
@@ -290,21 +290,79 @@ if(!target.matches('.portfolio-btn, .dot')){
     }
     nextSlide(slide,currentSlide, 'portfolio-item-active');
         nextSlide(dot, currentSlide, 'dot-active');
-});
-//наведение на стрелки или точки
-slider.addEventListener('mouseover', (event) => {
-    if(event.target.matches('.portfolio-btn') ||
-    event.target.matches('.dot')) {
-        stopSlide();
-    }
-});
-slider.addEventListener('mouseout', (event) => {
-    if(event.target.matches('.portfolio-btn') ||
-    event.target.matches('.dot')) {
-        startSlide();
-    }
-});
+    });
+    //наведение на стрелки или точки
+    slider.addEventListener('mouseover', (event) => {
+        if(event.target.matches('.portfolio-btn') ||
+        event.target.matches('.dot')) {
+            stopSlide();
+        }
+    });
+    slider.addEventListener('mouseout', (event) => {
+        if(event.target.matches('.portfolio-btn') ||
+        event.target.matches('.dot')) {
+            startSlide();
+        }
+    });
 
-};
+    };
     slider();
+
+    //замена картинки
+
+    const commandPhoto = document.querySelectorAll('.command__photo');
+    commandPhoto.forEach((elem) => {
+        elem.addEventListener('mouseenter', (event) => {
+                event.target.src = event.target.dataset.img;
+            });
+    });
+
+    commandPhoto.forEach((elem) => {
+        elem.addEventListener('mouseout', (event) => {
+                const attr = elem.getAttribute('src');
+                event.target.src = attr.replace(/a(?=\.)/, '');
+            });
+    });
+    
+    //ввод только цифр в калькулятор
+    const calcItem = document.querySelectorAll('.calc-item');
+    calcItem.forEach((elem) => {
+        elem.addEventListener('input', () => {
+            elem.value = elem.value.replace(/\D/g, '');
+        });
+    });
+
+    //валидация формы
+    const form2Name = document.getElementById('form2-name'),
+        form2Email = document.getElementById('form2-email'),
+        form2Phone = document.getElementById('form2-phone'),
+        form2Message = document.getElementById('form2-message');
+    form2Name.addEventListener('blur', (event) => {
+        const target = event.target;
+        target.value = target.value.replace(/\w|[!@#$%^&*()+=|";:?`~№,.]/g, '');
+        target.value = target.value.replace(/[А-Я]*$/i, (match) => match.toLowerCase());
+        target.value = target.value.replace(/^./i, (match) => match.toUpperCase());
+        target.value = target.value.replace(/ {2,}/g, ' ');
+    });
+    form2Email.addEventListener('blur', (event) => {
+        const target = event.target;
+        target.value = target.value.replace(/[^A-Za-z@-_.!~*']/g, '');
+    });
+    form2Phone.addEventListener('blur', (event) => {
+        const target = event.target;
+        target.value = target.value.replace(/[^0-9()-]/g, '');
+        target.value = target.value.replace(/-{2,}/g, '-');
+    });
+    
+    form2Message.addEventListener('blur', (event) => {
+            const target = event.target;
+            target.value = target.value.replace(/\w|[!@#$%^&*()+=|";:?`~№,.]/g, '');
+            target.value = target.value.replace(/ {2,}/g, ' ');
+            target.value = target.value.replace(/^-*/, '');
+            target.value = target.value.replace(/-*$/, '');
+            target.value = target.value.replace(/-{2,}/g, '-');
+            // elem.value = elem.value.match(/\+?[78]([-()]*\d){10}/g);
+        });
+
+
 });
