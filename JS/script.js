@@ -333,36 +333,74 @@ window.addEventListener('DOMContentLoaded', function(){
     });
 
     //валидация формы
+
+        const funcName = function(event) {
+            const target = event.target;
+            target.value = target.value.replace(/\w|[!@#$%^&*()+=|";:?`~№,.-]/g, '');
+        };
+        const funcNameBlur = function(event) {
+            const target = event.target;
+            //замена больше двух пробелов на один
+            target.value = target.value.replace(/ {2,}/g, ' ');
+            //все буквы маленькие
+            target.value = target.value.replace(/[А-Я]*/gi, (match) => match.toLowerCase());
+            //первая буква в строке большая
+            target.value = target.value.replace(/^./gi, (match) => match.toUpperCase());
+            //большая буква перед пробелом
+            target.value = target.value.replace(/.(?<= )./gi, (match) => match.toUpperCase());
+        };
+        const funcEmail = function(event) {
+            const target = event.target;
+            target.value = target.value.replace(/[^A-Za-z@-_.]/g, '');
+        };
+        const funcPhone = function(event) {
+            const target = event.target;
+            target.value = target.value.replace(/[^+0-9]/, '');
+        };
+
+    const form1Name = document.getElementById('form1-name'),
+        form1Email = document.getElementById('form1-email'),
+        form1Phone = document.getElementById('form1-phone');
+
+        form1Name.addEventListener('input', funcName);
+        form1Name.addEventListener('blur', funcNameBlur);
+        form1Email.addEventListener('input', funcEmail);
+        form1Phone.addEventListener('input', funcPhone);
+        
     const form2Name = document.getElementById('form2-name'),
         form2Email = document.getElementById('form2-email'),
         form2Phone = document.getElementById('form2-phone'),
         form2Message = document.getElementById('form2-message');
-    form2Name.addEventListener('blur', (event) => {
-        const target = event.target;
-        target.value = target.value.replace(/\w|[!@#$%^&*()+=|";:?`~№,.]/g, '');
-        target.value = target.value.replace(/[А-Я]*$/i, (match) => match.toLowerCase());
-        target.value = target.value.replace(/^./i, (match) => match.toUpperCase());
-        target.value = target.value.replace(/ {2,}/g, ' ');
-    });
-    form2Email.addEventListener('blur', (event) => {
-        const target = event.target;
-        target.value = target.value.replace(/[^A-Za-z@-_.!~*']/g, '');
-    });
-    form2Phone.addEventListener('blur', (event) => {
-        const target = event.target;
-        target.value = target.value.replace(/[^0-9()-]/g, '');
-        target.value = target.value.replace(/-{2,}/g, '-');
-    });
     
+    form2Name.addEventListener('input', funcName);
+    form2Name.addEventListener('blur', funcNameBlur);
+    form2Email.addEventListener('input', funcEmail);
+    form2Phone.addEventListener('input', funcPhone);
+    
+    form2Message.addEventListener('input', (event) => {
+            const target = event.target;
+            target.value = target.value.replace(/[^А-Яа-яЁё_!-@#$%^&**()+=|`~ ]/g, '');
+        });
     form2Message.addEventListener('blur', (event) => {
             const target = event.target;
-            target.value = target.value.replace(/\w|[!@#$%^&*()+=|";:?`~№,.]/g, '');
             target.value = target.value.replace(/ {2,}/g, ' ');
             target.value = target.value.replace(/^-*/, '');
             target.value = target.value.replace(/-*$/, '');
             target.value = target.value.replace(/-{2,}/g, '-');
+            target.value = target.value.replace(/[А-Я]*/gi, (match) => match.toLowerCase());
+            target.value = target.value.replace(/^./gi, (match) => match.toUpperCase());
             // elem.value = elem.value.match(/\+?[78]([-()]*\d){10}/g);
         });
+
+    const form3Name = document.getElementById('form3-name'),
+        form3Phone = document.getElementById('form3-phone'),
+        form3Email = document.getElementById('form3-email');
+
+    form3Name.addEventListener('input', funcName);
+    form3Name.addEventListener('blur', funcNameBlur);
+    form3Email.addEventListener('input', funcEmail);
+    form3Phone.addEventListener('input', funcPhone);
+
 
     //калькулятор
 
@@ -419,5 +457,253 @@ window.addEventListener('DOMContentLoaded', function(){
     };
     calc(100);
 
+    //send-ajax-form
+
+    const sendForm = () => {
+        //добавляем сообщения 
+        //но вместо них можно сделать анимацию или всплывающее окно
+        const errorMessage = 'Что-то пошло не так...',
+            loadMessage = 'Загрузка...',
+            successMessage = 'Спасибо мы скоро с вами свяжемся!';
+        const form = document.getElementById('form1');
+        const statusMessage = document.createElement('div');
+        statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
+
+        const postData = (formData, outputData, errorData) => {
+            const request = new XMLHttpRequest();
+            //добавляем событие при смене статуса пишем сообщения пользователю
+            request.addEventListener('readystatechange', () => {
+                
+                //дожидаемся статуса
+                if(request.readyState !== 4) {
+                    return;
+                }
+                if(request.status === 200) {
+                    outputData();
+                    
+                } else {
+                    errorData(request.status);
+                    //ошибка
+                }
+            });
+
+            //метод отправки и URL
+            request.open('POST', './server.php');
+            //настройка заголовка - Имя'Content-Type' - Значение 'multipart/form-data'
+            request.setRequestHeader('Content-Type', 'multipart/form-data');
+            //настройка заголовка JSON формата
+            // request.setRequestHeader('Content-Type', 'application/json');
+
+            //получение данных формы с ОБЯЗАТЕЛЬНЫМ аттриб name
+            
+            // console.log(body);
+            //отправка на сервер formData
+            request.send(formData);
+            //отправка на сервер JSON
+            // request.send(JSON.stringify(body));
+        };
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            //помещаем div на страницу
+            form.appendChild(statusMessage);
+            statusMessage.textContent = loadMessage;
+            
+            
+            //пишем запрос на сервер
+            const formData = new FormData(form);
+            //если сервер не понимает формат formData то переводим в JSON
+            let body = {};
+            //достаем значения из formData
+            // for(let val of formData.entries()){
+            //     // console.log(val);
+            //     //записываем в body
+            //     body[val[0]] = val[1];
+            // }
+            //через forEach
+            formData.forEach((val, key) => {
+                body[key] = val;
+            });
+            postData(formData, () => {
+                statusMessage.textContent = successMessage;
+            }, (error) => {
+                statusMessage.style.cssText = 'font-size: 2rem; color: red';
+                statusMessage.textContent = errorMessage;
+                console.error(error);
+            });
+            form1Name.value = '';
+            form1Email.value = '';
+            form1Phone.value = '';
+        });
+
+        
+    };
+    sendForm();
+
+    const sendForm2 = () => {
+        //добавляем сообщения 
+        //но вместо них можно сделать анимацию или всплывающее окно
+        const errorMessage = 'Что-то пошло не так...',
+            loadMessage = 'Загрузка...',
+            successMessage = 'Спасибо мы скоро с вами свяжемся!';
+        const form = document.getElementById('form2');
+        const statusMessage = document.createElement('div');
+        statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
+
+        const postData = (body, outputData, errorData) => {
+            const request = new XMLHttpRequest();
+            //добавляем событие при смене статуса пишем сообщения пользователю
+            request.addEventListener('readystatechange', () => {
+                
+                //дожидаемся статуса
+                if(request.readyState !== 4) {
+                    return;
+                }
+                if(request.status === 200) {
+                    outputData();
+                    
+                } else {
+                    errorData(request.status);
+                    //ошибка
+                }
+            });
+
+            //метод отправки и URL
+            request.open('POST', './server.php');
+            //настройка заголовка - Имя'Content-Type' - Значение 'multipart/form-data'
+            // request.setRequestHeader('Content-Type', 'multipart/form-data');
+            //настройка заголовка JSON формата
+            request.setRequestHeader('Content-Type', 'application/json');
+
+            //получение данных формы с ОБЯЗАТЕЛЬНЫМ аттриб name
+            
+            // console.log(body);
+            //отправка на сервер formData
+            // request.send(formData);
+            //отправка на сервер JSON
+            request.send(JSON.stringify(body));
+            
+        };
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            //помещаем div на страницу
+            form.appendChild(statusMessage);
+            statusMessage.textContent = loadMessage;
+            
+            //пишем запрос на сервер
+            const formData = new FormData(form);
+            //если сервер не понимает формат formData то переводим в JSON
+            let body = {};
+            //достаем значения из formData
+            // for(let val of formData.entries()){
+            //     // console.log(val);
+            //     //записываем в body
+            //     body[val[0]] = val[1];
+            // }
+            //через forEach
+            formData.forEach((val, key) => {
+                body[key] = val;
+            });
+            postData(body, () => {
+                statusMessage.textContent = successMessage;
+            }, (error) => {
+                statusMessage.style.cssText = 'font-size: 2rem; color: red';
+                statusMessage.textContent = errorMessage;
+                console.error(error);
+            });
+            form2Name.value = '';
+            form2Email.value = '';
+            form2Phone.value = '';
+            form2Message.value = '';
+        });
+
+        
+        
+    };
+    sendForm2();
+    
+    const sendForm3 = () => {
+        //добавляем сообщения 
+        //но вместо них можно сделать анимацию или всплывающее окно
+        const errorMessage = 'Что-то пошло не так...',
+            loadMessage = 'Загрузка...',
+            successMessage = 'Спасибо мы скоро с вами свяжемся!';
+        const form = document.getElementById('form3');
+        const statusMessage = document.createElement('div');
+        statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
+        
+        const postData = (body, outputData, errorData) => {
+            const request = new XMLHttpRequest();
+            //добавляем событие при смене статуса пишем сообщения пользователю
+            request.addEventListener('readystatechange', () => {
+                
+                //дожидаемся статуса
+                if(request.readyState !== 4) {
+                    return;
+                }
+                if(request.status === 200) {
+                    outputData();
+                    
+                } else {
+                    errorData(request.status);
+                    //ошибка
+                }
+            });
+
+            //метод отправки и URL
+            request.open('POST', './server.php');
+            //настройка заголовка - Имя'Content-Type' - Значение 'multipart/form-data'
+            // request.setRequestHeader('Content-Type', 'multipart/form-data');
+            //настройка заголовка JSON формата
+            request.setRequestHeader('Content-Type', 'application/json');
+
+            //получение данных формы с ОБЯЗАТЕЛЬНЫМ аттриб name
+            
+            // console.log(body);
+            //отправка на сервер formData
+            // request.send(formData);
+            //отправка на сервер JSON
+            request.send(JSON.stringify(body));
+            
+            
+        };
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            //помещаем div на страницу
+            form.appendChild(statusMessage);
+            statusMessage.textContent = loadMessage;
+            
+            //пишем запрос на сервер
+            const formData = new FormData(form);
+            //если сервер не понимает формат formData то переводим в JSON
+            let body = {};
+            //достаем значения из formData
+            // for(let val of formData.entries()){
+            //     // console.log(val);
+            //     //записываем в body
+            //     body[val[0]] = val[1];
+            // }
+            //через forEach
+            formData.forEach((val, key) => {
+                body[key] = val;
+            });
+            postData(body, () => {
+                statusMessage.textContent = successMessage;
+            }, (error) => {
+                statusMessage.style.cssText = 'font-size: 2rem; color: red';
+                statusMessage.textContent = errorMessage;
+                console.error(error);
+            });
+            form3Name.value = '';
+            form3Email.value = '';
+            form3Phone.value = '';
+        });
+
+        
+        
+    };
+    sendForm3();
 
 });
