@@ -10,6 +10,7 @@ window.addEventListener('DOMContentLoaded', function(){
             timerMinutes = document.querySelector('#timer-minutes'),
             timerSeconds = document.querySelector('#timer-seconds'),
             timerDay = document.querySelector('#timer-day'),
+            timerMonth = document.querySelector('#timer-month'),
             timerNumbers = document.querySelectorAll('.timer-numbers');
 
             function getTimeRemaining(){
@@ -23,9 +24,10 @@ window.addEventListener('DOMContentLoaded', function(){
                 seconds = Math.floor(timeRemainang % 60),
                 minutes = Math.floor((timeRemainang / 60) % 60),
                 hours = Math.floor(timeRemainang / 60 / 60) % 24,
-                day = Math.floor(timeRemainang / 60 / 60 / 24);
+                day = Math.floor(timeRemainang / 60 / 60 / 24) % 30,
+                month = Math.floor(timeRemainang / 60 / 60 / 24 / 30);
                
-                return {timeRemainang, day, hours, minutes, seconds};
+                return {timeRemainang, month, day, hours, minutes, seconds};
             }
             
                 //вывод таймера
@@ -33,6 +35,13 @@ window.addEventListener('DOMContentLoaded', function(){
                 let timer = getTimeRemaining();
                 let idInterval = setInterval(updateClock, 1000);
                 //вставляем значения
+
+                if(timer.month<10) {timerDay.textContent = '0' + timer.month;}
+                // else if (timer.day===0) {timerDay.textContent = '00';}
+                else{timerMonth.textContent = timer.month;}
+                if(timer.day<10) {timerDay.textContent = '0' + timer.day;}
+                // else if (timer.day===0) {timerDay.textContent = '00';}
+                else{timerDay.textContent = timer.day;}
                 if(timer.hours<10) {timerHours.textContent = '0' + timer.hours;}
                 // else if (timer.hours===0) {timerHours.textContent = '00';}
                 else {timerHours.textContent = timer.hours;}
@@ -42,9 +51,6 @@ window.addEventListener('DOMContentLoaded', function(){
                 if(timer.seconds<10) {timerSeconds.textContent = '0' + timer.seconds;}
                 // else if (timer.seconds===0) {timerSeconds.textContent = '00';}
                 else{timerSeconds.textContent = timer.seconds;}
-                if(timer.day<10) {timerDay.textContent = '0' + timer.day;}
-                // else if (timer.day===0) {timerDay.textContent = '00';}
-                else{timerDay.textContent = timer.day;}
                 if(timer.timeRemainang > 0) {
                     
                     setInterval(updateClock, 1000);
@@ -52,10 +58,11 @@ window.addEventListener('DOMContentLoaded', function(){
                 if(timer.hours<=0 && timer.minutes<=0 && timer.seconds<=0 &&
                     timer.day<=0) {
                         clearInterval(idInterval);
+                        timerMonth.textContent = '00';
+                        timerDay.textContent = '00';
                         timerHours.textContent = '00';
                         timerMinutes.textContent = '00';
                         timerSeconds.textContent = '00';
-                        timerDay.textContent = '00';
                         timerNumbers.forEach(e => {
                             e.style.color = 'red';
                         });
@@ -64,7 +71,7 @@ window.addEventListener('DOMContentLoaded', function(){
             updateClock();
             
     }
-    countTimer('29 february 2021');
+    countTimer('04 july 2020');
     // setInterval(countTimer, 1000, '01 april 2021')
     //меню
     const toggleMenu = () => {
@@ -458,7 +465,7 @@ window.addEventListener('DOMContentLoaded', function(){
     calc(100);
 
     //send-ajax-form
-
+    /*
     const sendForm = () => {
         //добавляем сообщения 
         //но вместо них можно сделать анимацию или всплывающее окно
@@ -469,38 +476,43 @@ window.addEventListener('DOMContentLoaded', function(){
         const statusMessage = document.createElement('div');
         statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
 
-        const postData = (formData, outputData, errorData) => {
-            const request = new XMLHttpRequest();
-            //добавляем событие при смене статуса пишем сообщения пользователю
-            request.addEventListener('readystatechange', () => {
-                
-                //дожидаемся статуса
-                if(request.readyState !== 4) {
-                    return;
-                }
-                if(request.status === 200) {
-                    outputData();
+        const postData = (formData) => {
+
+            return new Promise((resolve, reject) => {
+                const request = new XMLHttpRequest();
+                //добавляем событие при смене статуса пишем сообщения пользователю
+                request.addEventListener('readystatechange', () => {
                     
-                } else {
-                    errorData(request.status);
-                    //ошибка
-                }
+                    //дожидаемся статуса
+                    if(request.readyState !== 4) {
+                        return;
+                    }
+                    if(request.status === 200) {
+                        resolve();
+                        
+                    } else {
+                        reject(request.status);
+                        //ошибка
+                    }
+                });
+    
+                //метод отправки и URL
+                request.open('POST', './server.php');
+                //настройка заголовка - Имя'Content-Type' - Значение 'multipart/form-data'
+                request.setRequestHeader('Content-Type', 'multipart/form-data');
+                //настройка заголовка JSON формата
+                // request.setRequestHeader('Content-Type', 'application/json');
+    
+                //получение данных формы с ОБЯЗАТЕЛЬНЫМ аттриб name
+                
+                // console.log(body);
+                //отправка на сервер formData
+                request.send(formData);
+                //отправка на сервер JSON
+                // request.send(JSON.stringify(body));
+
             });
 
-            //метод отправки и URL
-            request.open('POST', './server.php');
-            //настройка заголовка - Имя'Content-Type' - Значение 'multipart/form-data'
-            request.setRequestHeader('Content-Type', 'multipart/form-data');
-            //настройка заголовка JSON формата
-            // request.setRequestHeader('Content-Type', 'application/json');
-
-            //получение данных формы с ОБЯЗАТЕЛЬНЫМ аттриб name
-            
-            // console.log(body);
-            //отправка на сервер formData
-            request.send(formData);
-            //отправка на сервер JSON
-            // request.send(JSON.stringify(body));
         };
 
         form.addEventListener('submit', (event) => {
@@ -524,13 +536,17 @@ window.addEventListener('DOMContentLoaded', function(){
             formData.forEach((val, key) => {
                 body[key] = val;
             });
-            postData(formData, () => {
-                statusMessage.textContent = successMessage;
-            }, (error) => {
-                statusMessage.style.cssText = 'font-size: 2rem; color: red';
-                statusMessage.textContent = errorMessage;
-                console.error(error);
-            });
+            
+            postData(formData)
+                .then(() => {
+                    statusMessage.textContent = successMessage;
+                })
+                .catch((error) => {
+                    statusMessage.style.cssText = 'font-size: 2rem; color: red';
+                    statusMessage.textContent = errorMessage;
+                    console.error(error);
+                }); 
+            
             form1Name.value = '';
             form1Email.value = '';
             form1Phone.value = '';
@@ -539,6 +555,98 @@ window.addEventListener('DOMContentLoaded', function(){
         
     };
     sendForm();
+    */
+
+    const sendForm = () => {
+        //добавляем сообщения 
+        //но вместо них можно сделать анимацию или всплывающее окно
+        const errorMessage = 'Что-то пошло не так...',
+            loadMessage = 'Загрузка...',
+            successMessage = 'Спасибо мы скоро с вами свяжемся!';
+        const form = document.getElementById('form1');
+        const statusMessage = document.createElement('div');
+        statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
+
+        const postData = (formData) => {
+
+            return new Promise((resolve, reject) => {
+                const request = new XMLHttpRequest();
+                //добавляем событие при смене статуса пишем сообщения пользователю
+                request.addEventListener('readystatechange', () => {
+                    
+                    //дожидаемся статуса
+                    if(request.readyState !== 4) {
+                        return;
+                    }
+                    if(request.status === 200) {
+                        resolve();
+                        
+                    } else {
+                        reject(request.status);
+                        //ошибка
+                    }
+                });
+    
+                //метод отправки и URL
+                request.open('POST', './server.php');
+                //настройка заголовка - Имя'Content-Type' - Значение 'multipart/form-data'
+                request.setRequestHeader('Content-Type', 'multipart/form-data');
+                //настройка заголовка JSON формата
+                // request.setRequestHeader('Content-Type', 'application/json');
+    
+                //получение данных формы с ОБЯЗАТЕЛЬНЫМ аттриб name
+                
+                // console.log(body);
+                //отправка на сервер formData
+                request.send(formData);
+                //отправка на сервер JSON
+                // request.send(JSON.stringify(body));
+
+            });
+
+        };
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            //помещаем div на страницу
+            form.appendChild(statusMessage);
+            statusMessage.textContent = loadMessage;
+            
+            
+            //пишем запрос на сервер
+            const formData = new FormData(form);
+            //если сервер не понимает формат formData то переводим в JSON
+            let body = {};
+            //достаем значения из formData
+            // for(let val of formData.entries()){
+            //     // console.log(val);
+            //     //записываем в body
+            //     body[val[0]] = val[1];
+            // }
+            //через forEach
+            formData.forEach((val, key) => {
+                body[key] = val;
+            });
+            
+            postData(formData)
+                .then(() => {
+                    statusMessage.textContent = successMessage;
+                })
+                .catch((error) => {
+                    statusMessage.style.cssText = 'font-size: 2rem; color: red';
+                    statusMessage.textContent = errorMessage;
+                    console.error(error);
+                }); 
+            
+            form1Name.value = '';
+            form1Email.value = '';
+            form1Phone.value = '';
+        });
+
+        
+    };
+    sendForm();
+
 
     const sendForm2 = () => {
         //добавляем сообщения 
