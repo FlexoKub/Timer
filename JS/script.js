@@ -557,6 +557,8 @@ window.addEventListener('DOMContentLoaded', function(){
     sendForm();
     */
 
+       //на промисах
+    /*
     const sendForm = () => {
         //добавляем сообщения 
         //но вместо них можно сделать анимацию или всплывающее окно
@@ -567,8 +569,10 @@ window.addEventListener('DOMContentLoaded', function(){
         const statusMessage = document.createElement('div');
         statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
 
-        const postData = (formData) => {
 
+
+        const postData = (formData) => {
+            
             return new Promise((resolve, reject) => {
                 const request = new XMLHttpRequest();
                 //добавляем событие при смене статуса пишем сообщения пользователю
@@ -646,7 +650,75 @@ window.addEventListener('DOMContentLoaded', function(){
         
     };
     sendForm();
+    */
+    
+    // метод Fetch
+    const sendForm = () => {
+        //добавляем сообщения 
+        //но вместо них можно сделать анимацию или всплывающее окно
+        const errorMessage = 'Что-то пошло не так...',
+            loadMessage = 'Загрузка...',
+            successMessage = 'Спасибо мы скоро с вами свяжемся!';
+        const form = document.getElementById('form1');
+        const statusMessage = document.createElement('div');
+        statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
 
+
+
+        const postData = (formData) => {
+            return fetch('./server.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                body: formData
+            });
+
+        };
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            //помещаем div на страницу
+            form.appendChild(statusMessage);
+            statusMessage.textContent = loadMessage;
+            
+            
+            //пишем запрос на сервер
+            const formData = new FormData(form);
+            //если сервер не понимает формат formData то переводим в JSON
+            let body = {};
+            //достаем значения из formData
+            // for(let val of formData.entries()){
+            //     // console.log(val);
+            //     //записываем в body
+            //     body[val[0]] = val[1];
+            // }
+            //через forEach
+            formData.forEach((val, key) => {
+                body[key] = val;
+            });
+            
+            postData(formData)
+                .then((response) => {
+                    if(response.status !== 200) {
+                        throw new Error('status network not 200');
+                    }
+                    statusMessage.textContent = successMessage;
+                })
+                .catch((error) => {
+                    statusMessage.style.cssText = 'font-size: 2rem; color: red';
+                    statusMessage.textContent = errorMessage;
+                    console.error(error);
+                }); 
+            statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
+            form1Name.value = '';
+            form1Email.value = '';
+            form1Phone.value = '';
+        });
+
+        
+    };
+    sendForm();
 
     const sendForm2 = () => {
         //добавляем сообщения 
@@ -659,39 +731,12 @@ window.addEventListener('DOMContentLoaded', function(){
         statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
 
         const postData = (body) => {
-
-            return new Promise((resolve, reject) => {
-                const request = new XMLHttpRequest();
-                //добавляем событие при смене статуса пишем сообщения пользователю
-                request.addEventListener('readystatechange', () => {
-                    
-                    //дожидаемся статуса
-                    if(request.readyState !== 4) {
-                        return;
-                    }
-                    if(request.status === 200) {
-                        resolve();
-                        
-                    } else {
-                        reject(request.status);
-                        //ошибка
-                    }
-                });
-
-            //метод отправки и URL
-            request.open('POST', './server.php');
-            //настройка заголовка - Имя'Content-Type' - Значение 'multipart/form-data'
-            // request.setRequestHeader('Content-Type', 'multipart/form-data');
-            //настройка заголовка JSON формата
-            request.setRequestHeader('Content-Type', 'application/json');
-
-            //получение данных формы с ОБЯЗАТЕЛЬНЫМ аттриб name
-            
-            // console.log(body);
-            //отправка на сервер formData
-            // request.send(formData);
-            //отправка на сервер JSON
-            request.send(JSON.stringify(body));
+            return fetch('./server.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
             });
         };
 
@@ -716,9 +761,12 @@ window.addEventListener('DOMContentLoaded', function(){
                 body[key] = val;
             });
             postData(body)
-                .then(() => {
+            .then((response) => {
+                if(response.status !== 200) {
+                    throw new Error('status network not 200');
+                }
                 statusMessage.textContent = successMessage;
-            }) 
+            })
                 .catch((error) => {
                 statusMessage.style.cssText = 'font-size: 2rem; color: red';
                 statusMessage.textContent = errorMessage;
@@ -744,38 +792,12 @@ window.addEventListener('DOMContentLoaded', function(){
         statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
         
         const postData = (body) => {
-            return new Promise((resolve, reject) => {
-                const request = new XMLHttpRequest();
-                //добавляем событие при смене статуса пишем сообщения пользователю
-                request.addEventListener('readystatechange', () => {
-                    
-                    //дожидаемся статуса
-                    if(request.readyState !== 4) {
-                        return;
-                    }
-                    if(request.status === 200) {
-                        resolve();
-                        
-                    } else {
-                        reject(request.status);
-                        //ошибка
-                    }
-                });
-
-            //метод отправки и URL
-            request.open('POST', './server.php');
-            //настройка заголовка - Имя'Content-Type' - Значение 'multipart/form-data'
-            // request.setRequestHeader('Content-Type', 'multipart/form-data');
-            //настройка заголовка JSON формата
-            request.setRequestHeader('Content-Type', 'application/json');
-
-            //получение данных формы с ОБЯЗАТЕЛЬНЫМ аттриб name
-            
-            // console.log(body);
-            //отправка на сервер formData
-            // request.send(formData);
-            //отправка на сервер JSON
-            request.send(JSON.stringify(body));
+            return fetch('./server.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
             });
             
         };
@@ -801,9 +823,12 @@ window.addEventListener('DOMContentLoaded', function(){
                 body[key] = val;
             });
             postData(body) 
-                .then(() => {
+            .then((response) => {
+                if(response.status !== 200) {
+                    throw new Error('status network not 200');
+                }
                 statusMessage.textContent = successMessage;
-            }) 
+            })
                 .catch((error) => {
                     statusMessage.style.cssText = 'font-size: 2rem; color: red';
                     statusMessage.textContent = errorMessage;
