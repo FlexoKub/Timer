@@ -658,23 +658,25 @@ window.addEventListener('DOMContentLoaded', function(){
         const statusMessage = document.createElement('div');
         statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
 
-        const postData = (body, outputData, errorData) => {
-            const request = new XMLHttpRequest();
-            //добавляем событие при смене статуса пишем сообщения пользователю
-            request.addEventListener('readystatechange', () => {
-                
-                //дожидаемся статуса
-                if(request.readyState !== 4) {
-                    return;
-                }
-                if(request.status === 200) {
-                    outputData();
+        const postData = (body) => {
+
+            return new Promise((resolve, reject) => {
+                const request = new XMLHttpRequest();
+                //добавляем событие при смене статуса пишем сообщения пользователю
+                request.addEventListener('readystatechange', () => {
                     
-                } else {
-                    errorData(request.status);
-                    //ошибка
-                }
-            });
+                    //дожидаемся статуса
+                    if(request.readyState !== 4) {
+                        return;
+                    }
+                    if(request.status === 200) {
+                        resolve();
+                        
+                    } else {
+                        reject(request.status);
+                        //ошибка
+                    }
+                });
 
             //метод отправки и URL
             request.open('POST', './server.php');
@@ -690,7 +692,7 @@ window.addEventListener('DOMContentLoaded', function(){
             // request.send(formData);
             //отправка на сервер JSON
             request.send(JSON.stringify(body));
-            
+            });
         };
 
         form.addEventListener('submit', (event) => {
@@ -713,21 +715,21 @@ window.addEventListener('DOMContentLoaded', function(){
             formData.forEach((val, key) => {
                 body[key] = val;
             });
-            postData(body, () => {
+            postData(body)
+                .then(() => {
                 statusMessage.textContent = successMessage;
-            }, (error) => {
+            }) 
+                .catch((error) => {
                 statusMessage.style.cssText = 'font-size: 2rem; color: red';
                 statusMessage.textContent = errorMessage;
                 console.error(error);
             });
+            statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
             form2Name.value = '';
             form2Email.value = '';
             form2Phone.value = '';
             form2Message.value = '';
         });
-
-        
-        
     };
     sendForm2();
     
@@ -741,23 +743,24 @@ window.addEventListener('DOMContentLoaded', function(){
         const statusMessage = document.createElement('div');
         statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
         
-        const postData = (body, outputData, errorData) => {
-            const request = new XMLHttpRequest();
-            //добавляем событие при смене статуса пишем сообщения пользователю
-            request.addEventListener('readystatechange', () => {
-                
-                //дожидаемся статуса
-                if(request.readyState !== 4) {
-                    return;
-                }
-                if(request.status === 200) {
-                    outputData();
+        const postData = (body) => {
+            return new Promise((resolve, reject) => {
+                const request = new XMLHttpRequest();
+                //добавляем событие при смене статуса пишем сообщения пользователю
+                request.addEventListener('readystatechange', () => {
                     
-                } else {
-                    errorData(request.status);
-                    //ошибка
-                }
-            });
+                    //дожидаемся статуса
+                    if(request.readyState !== 4) {
+                        return;
+                    }
+                    if(request.status === 200) {
+                        resolve();
+                        
+                    } else {
+                        reject(request.status);
+                        //ошибка
+                    }
+                });
 
             //метод отправки и URL
             request.open('POST', './server.php');
@@ -773,7 +776,7 @@ window.addEventListener('DOMContentLoaded', function(){
             // request.send(formData);
             //отправка на сервер JSON
             request.send(JSON.stringify(body));
-            
+            });
             
         };
 
@@ -797,13 +800,16 @@ window.addEventListener('DOMContentLoaded', function(){
             formData.forEach((val, key) => {
                 body[key] = val;
             });
-            postData(body, () => {
+            postData(body) 
+                .then(() => {
                 statusMessage.textContent = successMessage;
-            }, (error) => {
-                statusMessage.style.cssText = 'font-size: 2rem; color: red';
-                statusMessage.textContent = errorMessage;
-                console.error(error);
+            }) 
+                .catch((error) => {
+                    statusMessage.style.cssText = 'font-size: 2rem; color: red';
+                    statusMessage.textContent = errorMessage;
+                    console.error(error);
             });
+            statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe';
             form3Name.value = '';
             form3Email.value = '';
             form3Phone.value = '';
