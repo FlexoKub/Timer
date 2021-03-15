@@ -1,5 +1,9 @@
-
+'use strict';
 const sendForm2 = () => {
+    const form2Name = document.getElementById('form2-name'),
+        form2Email = document.getElementById('form2-email'),
+        form2Phone = document.getElementById('form2-phone'),
+        form2Message = document.getElementById('form2-message');
     //добавляем сообщения 
     //но вместо них можно сделать анимацию или всплывающее окно
     const errorMessage = 'Что-то пошло не так...',

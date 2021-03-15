@@ -1,5 +1,8 @@
-
+'use strict';
 const sendForm = () => {
+    const form1Name = document.getElementById('form1-name'),
+        form1Email = document.getElementById('form1-email'),
+        form1Phone = document.getElementById('form1-phone');
     //добавляем сообщения 
     //но вместо них можно сделать анимацию или всплывающее окно
     const errorMessage = 'Что-то пошло не так...',
@@ -11,13 +14,15 @@ const sendForm = () => {
 
 
 
-    const postData = (formData) => {
+    const postData = (body) => {
         return fetch('./server.php', {
             method: 'POST',
             headers: {
-                'Content-Type': 'multipart/form-data'
+                'Content-Type': 'application/json'
+                // 'Content-Type': 'multipart/form-data'
             },
-            body: formData
+            body: JSON.stringify(body)
+            // body: formData
         });
 
     };
@@ -44,7 +49,7 @@ const sendForm = () => {
             body[key] = val;
         });
         
-        postData(formData)
+        postData(body)
             .then((response) => {
                 if(response.status !== 200) {
                     throw new Error('status network not 200');
