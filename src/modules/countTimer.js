@@ -24,10 +24,11 @@ function countTimer(deadline){
             return {timeRemainang, month, day, hours, minutes, seconds};
         }
         
-            //вывод таймера
+        let idInterval = setInterval(updateClock, 1000);
+        //вывод таймера
         function updateClock(){
             let timer = getTimeRemaining();
-            let idInterval = setInterval(updateClock, 1000);
+            
             //вставляем значения
 
             if(timer.month<10) {timerDay.textContent = '0' + timer.month;}
@@ -45,10 +46,10 @@ function countTimer(deadline){
             if(timer.seconds<10) {timerSeconds.textContent = '0' + timer.seconds;}
             // else if (timer.seconds===0) {timerSeconds.textContent = '00';}
             else{timerSeconds.textContent = timer.seconds;}
-            if(timer.timeRemainang > 0) {
+            // if(timer.timeRemainang > 0) {
                 
-                setInterval(updateClock, 1000);
-            }
+            //     setInterval(updateClock, 1000);
+            // }
             if(timer.hours<=0 && timer.minutes<=0 && timer.seconds<=0 &&
                 timer.day<=0) {
                     clearInterval(idInterval);

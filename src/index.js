@@ -13,7 +13,7 @@ import sendForm2 from './modules/sendForm2';
 import sendForm3 from './modules/sendForm3';
 
     //Time
-    countTimer('04 july 2020');
+    countTimer('04 july 2021');
     //меню
     toggleMenu();
     //popup
